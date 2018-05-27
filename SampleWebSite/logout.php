@@ -1,6 +1,6 @@
 <?php
 $appid = "r9v498fja495j";
-$appsecret = "AirconditioningDuctsForB51";
+$appsecret = "AirconditioningDuctsFor9002";
 $idpprovider = "http://localhost:81/";
 
 /* Logout by destroying the php session and logontoken */

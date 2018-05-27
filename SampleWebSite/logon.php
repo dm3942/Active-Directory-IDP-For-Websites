@@ -1,6 +1,6 @@
 <?php
 $appid = "r9v498fja495j";
-$appsecret = "AirconditioningDuctsForB51";
+$appsecret = "AirconditioningDuctsFor9002";
 $idpprovider = "http://localhost:81/";
 
 /* check for php session and create a session if it doesn't already exist */
@@ -36,8 +36,8 @@ function iisidpauthenticate($pidpprovider,$pphpsession,$pappid)
 {
    /* Request Authentication */
    setcookie("logontoken",""); // make sure previous logon token is cleared before requesting another.
-   //SLOW header("Refresh:3; url=".$pidpprovider."?session=".$pphpsession."&appid=".$pappid);
-   header("Location: ".$pidpprovider."?session=".$pphpsession."&appid=".$pappid); /* Redirect browser, auth server */
+   header("Refresh:3; url=".$pidpprovider."?session=".$pphpsession."&appid=".$pappid);
+   //FAST header("Location: ".$pidpprovider."?session=".$pphpsession."&appid=".$pappid); /* Redirect browser, auth server */
    exit; /* Make sure that code below does not get executed when we redirect. */
 }
 
@@ -48,12 +48,14 @@ if(!empty($logontoken)) {
     // debug output: echo($idpprovider."verify.php?logontoken=".$logontoken."<br />");
 
     /* Talk with iisidp to verify that the logon token is valid */
-    $vfy = file_get_contents($idpprovider."verify.php?logontoken=".$logontoken); 
+    $vfy = file_get_contents($idpprovider."verify.php?logontoken=".$logontoken."&appid=".$appid."&appsecret=".$appsecret); 
     if(empty($vfy)) {
         /* if the response is empty, it means that the logon token is invalid or has expired */
+        /* Send user to iisidp to authenticate */
         iisidpauthenticate($idpprovider,$phpsession,$appid);
     } else {
-        // debug output echo ("<pre>Logon details\n".$vfy."\n</pre>");
+        /* debug output echo ("<pre>Logon details\n".$vfy."\n</pre>"); */
+        /* Sign in successful, save logon token in a cookie */
         $ltcookie = setcookie("logontoken",$logontoken);
     }
 
