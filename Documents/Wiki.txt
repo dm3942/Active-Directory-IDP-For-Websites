@@ -1,0 +1,58 @@
+## Welcome to the Active-Directory-IDP-For-Websites wiki!
+
+The IIS IDP website manages user authentication for any internally developed website or app. Why IIS IDP, because developers don't like installing PHP on IIS and executives don't like typing in passwords. The IIS IDP enables seamless single sign-on for devices that are joined to Active Directory using Kerberos or NTLM.
+
+This allows developers to focus on web site development and not have to worry about capturing usernames and passwords for complicated LDAPS sign on processes.
+
+This image shows how the authentication works:
+
+![Seamless Sign Sign On](https://github.com/dm3942/Active-Directory-IDP-For-Websites/blob/master/Documents/IIS_IDP_OnPrem_ActiveDirectory_SingleSignOn_For_Linux_Website.PNG)
+
+## How it Works
+A user visits a web site (http://www.foobar.com) running on Apache PHP on Linux server.
+The home page detects that the user doesn't have a unique session and creates one. 
+The web site sets the session Logon State = "Sign In Required". 
+
+At this point the user is redirected to the logon page (http://www.foobar.com/logon.php).
+The web site sees that the session logon state = "Sign In Required" and redirects the user to the IIS IDP authentication web service. As part of the redirection the web sites registered appid and user session are passed to the IIS IDP web service. https://iisidp.foobar.com/appid/session . 
+
+At this point IIS IDP detects the users browser and device type and redirects then to a windows automatic authentication page or basic authentication page for legacy sign in support. 
+
+If the logon is successful and logon token is created by the IIS IDP web service. The users username is also stored with the logon token. Next a query is sent to the registered applications database if there is a match for the appid, an app return URL is retrieved from the database And the user is redirected to that URL with the logontoken. https://www.foobar.com/logon.php?logontoken. This control mitigates the risk of fake websites hijacking the appid their own use. 
+
+With the user now pointing to the original web site. At this point the web site still doesn't know who has logged on. So the web site then verifies the issued logontoken by directly talking to the IIS IDP service. The verification requires an appid and appsecret. If the appid, appsecret and logontoken are valid. The IIS IDP responds with "LOGIN TOKEN IS VALID for User ID and unique session". At this point the web site knows who the user and the associated session. The web site now sets the session logon state  = "Signed In" and the user is granted access to the web site.
+
+:) 
+
+Epic.     
+
+## Configuring the IIS IDP Server
+### Requirements
+* Windows Server 2012 
+* Join to Active Directory Domain
+### Setup
+* Install Feature IIS
+* Install Feature PowerShell 
+* Configure SSL certificate i.e. https://iisidp.mycompany.com
+* Using the Microsoft Web Platform Installer, install PHP 7.0 or greater
+* Default Web Site
+* Add Virtual Directory C:\inetpub\wwwroot\winauth, enable Windows Authentication. Disable Anonymous authentication
+* Add Virtual Directory C:\inetpub\wwwroot\basic, enable Basic Authentication. Disable Anonymous authentication
+* Bindings … remove port 80
+Configure firewall to allow inbound connections on port 443 only. Do not allow port 80. Do not allow port 8008.
+### Install PHP Web Pages
+* Extract and copy to C:\inetpub\wwwroot
+### Install Powershell Script
+* Extract Powershell script to C:\scripts
+* Run ‘netsh’ command to allow http://+:8008, see comments at the beginning of the powershell script for details.
+
+## Configure Sample Web Server
+### Requirements
+* Linux / Windows / Other
+### Setup
+* Install Apache / Nginx / Other 
+* Install PHP 7+, 5.6 should work but hasn’t been tested
+* Configure SSL certificate i.e. https://coolwebsite.mycompany.com
+* Configure firewall to allow inbound connections on port 443 only. Do not allow port 80. 
+### Install PHP Web Pages
+* Extract and copy sample PHP files to website.

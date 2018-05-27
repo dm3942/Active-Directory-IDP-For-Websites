@@ -1,0 +1,2 @@
+loggedonuser:FOOBAR\john
+session:j79dvhe7au5m9o9f95qhh566u9

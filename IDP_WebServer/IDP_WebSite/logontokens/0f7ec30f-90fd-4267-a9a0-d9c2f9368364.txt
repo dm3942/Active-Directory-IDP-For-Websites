@@ -1,0 +1,3 @@
+loggedonuser=FOOBAR\john
+session=upuklr69gq44d3kcjksg4gi065
+
